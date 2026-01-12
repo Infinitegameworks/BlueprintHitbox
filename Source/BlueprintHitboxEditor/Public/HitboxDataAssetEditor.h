@@ -32,6 +32,10 @@ private:
 
 	FLinearColor GetHitboxColor(EHitboxType Type) const;
 	const FFrameHitboxData* GetCurrentFrame() const;
+	const FAnimationHitboxData* GetCurrentAnimation() const;
+
+	/** Get sprite dimensions for the current frame, returns false if no valid sprite */
+	bool GetCurrentSpriteInfo(UPaperSprite*& OutSprite, FVector2D& OutDimensions) const;
 };
 
 /**

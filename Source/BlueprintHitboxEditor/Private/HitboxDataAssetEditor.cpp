@@ -7,6 +7,9 @@
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SSlider.h"
 #include "Widgets/Input/SSpinBox.h"
+#include "PaperFlipbook.h"
+#include "PaperSprite.h"
+#include "Engine/Texture2D.h"
 
 #define LOCTEXT_NAMESPACE "HitboxDataAssetEditor"
 
@@ -47,9 +50,73 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 		return LayerId + 1;
 	}
 
+	// Get sprite info for actual dimensions
+	UPaperSprite* Sprite = nullptr;
+	FVector2D SpriteDimensions(128.0f, 128.0f); // Default fallback
+	bool bHasSprite = GetCurrentSpriteInfo(Sprite, SpriteDimensions);
+
+	// Calculate scale and offset based on actual sprite dimensions
 	FVector2D Size = LocalSize;
-	float Scale = FMath::Min(Size.X, Size.Y) / 128.0f;
-	FVector2D Offset(Size.X * 0.5f - 64 * Scale, Size.Y * 0.5f - 64 * Scale);
+	float Scale = FMath::Min(Size.X / SpriteDimensions.X, Size.Y / SpriteDimensions.Y) * 0.9f; // 90% to add padding
+	FVector2D Offset(
+		Size.X * 0.5f - (SpriteDimensions.X * 0.5f) * Scale,
+		Size.Y * 0.5f - (SpriteDimensions.Y * 0.5f) * Scale
+	);
+
+	// Draw sprite if available
+	if (bHasSprite && Sprite)
+	{
+		// Get the sprite's texture
+		UTexture2D* SpriteTexture = Sprite->GetBakedTexture();
+		if (!SpriteTexture)
+		{
+			SpriteTexture = Cast<UTexture2D>(Sprite->GetSourceTexture());
+		}
+
+		if (SpriteTexture)
+		{
+			// Get the source region from the sprite
+			FVector2D SourceUV = Sprite->GetSourceUV();
+			FVector2D SourceSize = Sprite->GetSourceSize();
+
+			// Create brush from texture
+			FSlateBrush SpriteBrush;
+			SpriteBrush.SetResourceObject(SpriteTexture);
+			SpriteBrush.ImageSize = FVector2D(SpriteTexture->GetSizeX(), SpriteTexture->GetSizeY());
+			SpriteBrush.DrawAs = ESlateBrushDrawType::Image;
+			SpriteBrush.Tiling = ESlateBrushTileType::NoTile;
+
+			// Calculate UV coordinates for the sprite region
+			FVector2D TextureSize(SpriteTexture->GetSizeX(), SpriteTexture->GetSizeY());
+			FVector2D UVMin = SourceUV / TextureSize;
+			FVector2D UVMax = (SourceUV + SourceSize) / TextureSize;
+
+			// Draw the sprite at the correct position and scale
+			FVector2D SpriteDrawSize = SpriteDimensions * Scale;
+
+			FSlateDrawElement::MakeBox(
+				OutDrawElements,
+				LayerId + 1,
+				AllottedGeometry.ToPaintGeometry(FVector2f(SpriteDrawSize), FSlateLayoutTransform(FVector2f(Offset))),
+				&SpriteBrush,
+				ESlateDrawEffect::None,
+				FLinearColor::White
+			);
+		}
+	}
+
+	// Draw sprite boundary outline (helpful when no sprite or for debugging)
+	{
+		FVector2D BoundarySize = SpriteDimensions * Scale;
+		FSlateDrawElement::MakeBox(
+			OutDrawElements,
+			LayerId + 2,
+			AllottedGeometry.ToPaintGeometry(FVector2f(BoundarySize), FSlateLayoutTransform(FVector2f(Offset))),
+			FAppStyle::GetBrush("Border"),
+			ESlateDrawEffect::None,
+			bHasSprite ? FLinearColor(0.3f, 0.3f, 0.3f, 0.5f) : FLinearColor(0.5f, 0.5f, 0.5f, 1.0f)
+		);
+	}
 
 	// Draw hitboxes
 	for (const FHitboxData& HB : Frame->Hitboxes)
@@ -61,7 +128,7 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 		// Fill
 		FSlateDrawElement::MakeBox(
 			OutDrawElements,
-			LayerId + 1,
+			LayerId + 3,
 			AllottedGeometry.ToPaintGeometry(FVector2f(BoxSize), FSlateLayoutTransform(FVector2f(Pos))),
 			FAppStyle::GetBrush("WhiteBrush"),
 			ESlateDrawEffect::None,
@@ -71,7 +138,7 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 		// Border
 		FSlateDrawElement::MakeBox(
 			OutDrawElements,
-			LayerId + 2,
+			LayerId + 4,
 			AllottedGeometry.ToPaintGeometry(FVector2f(BoxSize), FSlateLayoutTransform(FVector2f(Pos))),
 			FAppStyle::GetBrush("Border"),
 			ESlateDrawEffect::None,
@@ -90,7 +157,7 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 
 		FSlateDrawElement::MakeLines(
 			OutDrawElements,
-			LayerId + 3,
+			LayerId + 5,
 			AllottedGeometry.ToPaintGeometry(),
 			HLine,
 			ESlateDrawEffect::None,
@@ -100,7 +167,7 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 		);
 		FSlateDrawElement::MakeLines(
 			OutDrawElements,
-			LayerId + 3,
+			LayerId + 5,
 			AllottedGeometry.ToPaintGeometry(),
 			VLine,
 			ESlateDrawEffect::None,
@@ -110,7 +177,7 @@ int32 SHitboxPreviewWidget::OnPaint(const FPaintArgs& Args, const FGeometry& All
 		);
 	}
 
-	return LayerId + 4;
+	return LayerId + 6;
 }
 
 FLinearColor SHitboxPreviewWidget::GetHitboxColor(EHitboxType Type) const
@@ -126,17 +193,68 @@ FLinearColor SHitboxPreviewWidget::GetHitboxColor(EHitboxType Type) const
 
 const FFrameHitboxData* SHitboxPreviewWidget::GetCurrentFrame() const
 {
+	const FAnimationHitboxData* Anim = GetCurrentAnimation();
+	if (!Anim) return nullptr;
+
+	int32 FrameIndex = SelectedFrameIndex.Get();
+	if (!Anim->Frames.IsValidIndex(FrameIndex)) return nullptr;
+
+	return &Anim->Frames[FrameIndex];
+}
+
+const FAnimationHitboxData* SHitboxPreviewWidget::GetCurrentAnimation() const
+{
 	if (!Asset.IsValid()) return nullptr;
 
 	int32 AnimIndex = SelectedAnimationIndex.Get();
-	int32 FrameIndex = SelectedFrameIndex.Get();
-
 	if (!Asset->Animations.IsValidIndex(AnimIndex)) return nullptr;
 
-	const FAnimationHitboxData& Anim = Asset->Animations[AnimIndex];
-	if (!Anim.Frames.IsValidIndex(FrameIndex)) return nullptr;
+	return &Asset->Animations[AnimIndex];
+}
 
-	return &Anim.Frames[FrameIndex];
+bool SHitboxPreviewWidget::GetCurrentSpriteInfo(UPaperSprite*& OutSprite, FVector2D& OutDimensions) const
+{
+	OutSprite = nullptr;
+	OutDimensions = FVector2D(128.0f, 128.0f); // Default
+
+	const FAnimationHitboxData* Anim = GetCurrentAnimation();
+	if (!Anim) return false;
+
+	// Check if we have a Flipbook linked
+	if (Anim->Flipbook.IsNull()) return false;
+
+	// Load the Flipbook
+	UPaperFlipbook* Flipbook = Anim->Flipbook.LoadSynchronous();
+	if (!Flipbook) return false;
+
+	// Get the sprite at the current frame index
+	int32 FrameIndex = SelectedFrameIndex.Get();
+	int32 NumKeyFrames = Flipbook->GetNumKeyFrames();
+
+	if (NumKeyFrames == 0) return false;
+
+	// Clamp frame index to valid range
+	FrameIndex = FMath::Clamp(FrameIndex, 0, NumKeyFrames - 1);
+
+	// Get sprite at this key frame
+	const FPaperFlipbookKeyFrame& KeyFrame = Flipbook->GetKeyFrameChecked(FrameIndex);
+	OutSprite = KeyFrame.Sprite;
+	if (!OutSprite) return false;
+
+	// Get the source size (actual pixel dimensions of this sprite)
+	OutDimensions = OutSprite->GetSourceSize();
+
+	// Fallback if source size is invalid
+	if (OutDimensions.X <= 0 || OutDimensions.Y <= 0)
+	{
+		UTexture2D* Texture = Cast<UTexture2D>(OutSprite->GetSourceTexture());
+		if (Texture)
+		{
+			OutDimensions = FVector2D(Texture->GetSizeX(), Texture->GetSizeY());
+		}
+	}
+
+	return OutDimensions.X > 0 && OutDimensions.Y > 0;
 }
 
 // ==========================================

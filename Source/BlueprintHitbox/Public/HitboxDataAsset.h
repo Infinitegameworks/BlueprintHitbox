@@ -59,8 +59,11 @@ struct BLUEPRINTHITBOX_API FAnimationHitboxData
 /**
  * Data Asset containing all hitbox data for a character or entity.
  * Import from JSON exported by the Hitbox Editor tool.
+ *
+ * Create instances via "Import Hitbox Data" or Content Browser -> Miscellaneous -> Data Asset.
+ * Do not subclass via Blueprint - use the data asset instance directly.
  */
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, NotBlueprintable)
 class BLUEPRINTHITBOX_API UHitboxDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()

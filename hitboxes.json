@@ -1,0 +1,217 @@
+{
+  "AirAttack1": {
+    "flipbook": "AirAttack1",
+    "frames": {
+      "LiorenLael_AirAttack1_00": {
+        "hitboxes": [
+          {
+            "type": "attack",
+            "rect": [
+              31,
+              21,
+              67,
+              16
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              88,
+              36,
+              20,
+              46
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "hurtbox",
+            "rect": [
+              52,
+              44,
+              24,
+              48
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack1_01": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              52,
+              44,
+              24,
+              48
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              30,
+              21,
+              45,
+              16
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack1_02": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              52,
+              44,
+              24,
+              48
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              29,
+              25,
+              14,
+              10
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack1_03": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              52,
+              44,
+              24,
+              48
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      }
+    }
+  },
+  "AirAttack2": {
+    "flipbook": "AirAttack2",
+    "frames": {
+      "LiorenLael_AirAttack2_00": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              54,
+              41,
+              20,
+              55
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              79,
+              49,
+              24,
+              17
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack2_01": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              54,
+              41,
+              20,
+              55
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              4,
+              71,
+              84,
+              13
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack2_02": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              54,
+              41,
+              20,
+              55
+            ],
+            "damage": 10,
+            "knockback": 100
+          },
+          {
+            "type": "attack",
+            "rect": [
+              2,
+              66,
+              17,
+              17
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      },
+      "LiorenLael_AirAttack2_03": {
+        "hitboxes": [
+          {
+            "type": "hurtbox",
+            "rect": [
+              54,
+              41,
+              20,
+              55
+            ],
+            "damage": 10,
+            "knockback": 100
+          }
+        ],
+        "sockets": []
+      }
+    }
+  }
+}

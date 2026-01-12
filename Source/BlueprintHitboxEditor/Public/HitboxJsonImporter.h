@@ -55,4 +55,7 @@ private:
 	static FHitboxData ParseHitboxFromJson(const TSharedPtr<class FJsonObject>& JsonObject);
 	static FSocketData ParseSocketFromJson(const TSharedPtr<class FJsonObject>& JsonObject);
 	static FFrameHitboxData ParseFrameFromJson(const FString& FrameName, const TSharedPtr<class FJsonObject>& JsonObject);
+
+	/** Find a PaperFlipbook asset by name for auto-linking */
+	static TSoftObjectPtr<UPaperFlipbook> FindFlipbookByName(const FString& FlipbookName);
 };
