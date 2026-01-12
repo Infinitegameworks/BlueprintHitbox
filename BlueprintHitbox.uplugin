@@ -1,0 +1,35 @@
+{
+	"FileVersion": 3,
+	"Version": 3,
+	"VersionName": "3.0",
+	"FriendlyName": "Blueprint Hitbox",
+	"Description": "Complete hitbox data pipeline for 2D games. Import hitbox/socket data from JSON into Data Assets, visualize in editor, link to Flipbooks, and use efficient collision detection in Blueprints.",
+	"Category": "2D",
+	"CreatedBy": "Custom",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "BlueprintHitbox",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "BlueprintHitboxEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Paper2D",
+			"Enabled": true
+		}
+	]
+}
